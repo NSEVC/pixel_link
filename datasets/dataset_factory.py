@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """A factory-pattern class which returns classification image/label pairs."""
 from datasets import dataset_utils
 
@@ -5,7 +6,7 @@ class DatasetConfig():
     def __init__(self, file_pattern, split_sizes):
         self.file_pattern = file_pattern
         self.split_sizes = split_sizes
-        
+
 icdar2013 = DatasetConfig(
         file_pattern = '*_%s.tfrecord', 
         split_sizes = {
@@ -16,7 +17,7 @@ icdar2013 = DatasetConfig(
 icdar2015 = DatasetConfig(
         file_pattern = 'icdar2015_%s.tfrecord', 
         split_sizes = {
-            'train': 1000,
+            'train': 1000,  # 数据集含有1000张训练集
             'test': 500
         }
 )
@@ -73,7 +74,7 @@ def get_dataset(dataset_name, split_name, dataset_dir, reader=None):
     """
     if dataset_name not in datasets_map:
         raise ValueError('Name of dataset unknown %s' % dataset_name)
-    dataset_config = datasets_map[dataset_name];
-    file_pattern = dataset_config.file_pattern
+    dataset_config = datasets_map[dataset_name]
+    file_pattern = dataset_config.file_pattern   # tfrecod文件名
     num_samples = dataset_config.split_sizes[split_name]
-    return dataset_utils.get_split(split_name, dataset_dir,file_pattern, num_samples, reader)
+    return dataset_utils.get_split(split_name, dataset_dir, file_pattern, num_samples, reader)

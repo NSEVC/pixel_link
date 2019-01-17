@@ -25,7 +25,7 @@ def cvt_to_tfrecords(output_path , data_path, gt_path):
             h *= 1.0;
             w *= 1.0;
             image_name = util.str.split(image_name, '.')[0];
-            gt_name = 'gt_' + image_name + '.txt';
+            gt_name = image_name + '.txt';
             gt_filepath = util.io.join_path(gt_path, gt_name);
             lines = util.io.read_lines(gt_filepath);
                 
@@ -55,14 +55,16 @@ def cvt_to_tfrecords(output_path , data_path, gt_path):
             tfrecord_writer.write(example.SerializeToString())
         
 if __name__ == "__main__":
-    root_dir = util.io.get_absolute_path('~/dataset/ICDAR2015/Challenge4/')
-    output_dir = util.io.get_absolute_path('~/dataset/pixel_link/ICDAR/')
+    root_dir = util.io.get_absolute_path('/share_sdb/clj/pixel_link/data/train/tax_vin')
+    output_dir = util.io.get_absolute_path('/share_sdb/clj/pixel_link/data/train/tax_vin')
     util.io.mkdir(output_dir);
 
-    training_data_dir = util.io.join_path(root_dir, 'ch4_training_images')
-    training_gt_dir = util.io.join_path(root_dir,'ch4_training_localization_transcription_gt')
+    training_data_dir = util.io.join_path(root_dir, 'JPEGImages')
+    training_gt_dir = util.io.join_path(root_dir, 'Txts')
     cvt_to_tfrecords(output_path = util.io.join_path(output_dir, 'icdar2015_train.tfrecord'), data_path = training_data_dir, gt_path = training_gt_dir)
-
+    '''
     test_data_dir = util.io.join_path(root_dir, 'ch4_test_images')
-    test_gt_dir = util.io.join_path(root_dir,'ch4_test_localization_transcription_gt')
+    test_gt_dir = util.io.join_path(root_dir, 'ch4_test_localization_transcription_gt')
     cvt_to_tfrecords(output_path = util.io.join_path(output_dir, 'icdar2015_test.tfrecord'), data_path = test_data_dir, gt_path = test_gt_dir)
+    '''
+

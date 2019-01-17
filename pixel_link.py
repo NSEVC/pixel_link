@@ -88,7 +88,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     """
     import config
     score_map_shape = config.score_map_shape
-    pixel_cls_weight_method  = config.pixel_cls_weight_method
+    pixel_cls_weight_method = config.pixel_cls_weight_method  # a string
     h, w = score_map_shape
     text_label = config.text_label
     ignore_label = config.ignore_label
@@ -319,7 +319,8 @@ def rect_to_xys(rect, image_shape):
         return y
     
     rect = ((rect[0], rect[1]), (rect[2], rect[3]), rect[4])
-    points = cv2.cv.BoxPoints(rect)
+    # points = cv2.cv.BoxPoints(rect)
+    points = cv2.boxPoints(rect)
     points = np.int0(points)
     for i_xy, (x, y) in enumerate(points):
         x = get_valid_x(x)

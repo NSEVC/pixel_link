@@ -136,12 +136,44 @@ def test():
             mask = resize(mask)
             pixel_score = resize(pixel_score)
 
+            
+            import os
+            ID = file_path.split('/')[-1].split('.')[0]
+            '''
+            txt_file = os.path.join('/data/VOC/train/tax_2/Txts3', '%s.txt' % ID)
+            with open(txt_file, 'w') as f:
+                count = 0
+                for box in bboxes_det:
+                    count = 1
+                    x1, y1, x2, y2, x3, y3, x4, y4 = box
+                    l_1 = int(math.sqrt((x1-x2)**2  (y1-y2)**2))
+                    l_2 = int(math.sqrt((x2-x3)**2  (y2-y3)**2))
+
+                    pts1 = np.float32([[box[0], box[1]], [box[2], box[3]], [box[6], box[7]], [box[4], box[5]]])
+
+                    if l_1 < l_2:
+                        width = l_2
+                        height = l_1
+                        pts2 = np.float32([[0, 0], [height, 0], [0, width], [height, width]])
+                        M = cv2.getPerspectiveTransform(pts1, pts2)
+                        ROI = cv2.warpPerspective(image_data, M, (height, width))
+                        ROI = np.rot90(ROI)
+                    else:
+                        width = l_1
+                        height = l_2
+                        pts2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
+                        M = cv2.getPerspectiveTransform(pts1, pts2)
+                        ROI = cv2.warpPerspective(image_data, M, (width, height))
+
+                    nh, nw, nc = ROI.shape
+                    # if nw /float(nh) > 5.:
+                    #     cv2.imwrite('/data_sdd/crop/process_tax/crop_0104/vin_train/%s_%d.jpg' % (ID, count), ROI)
+                    f.write('%d,%d,%d,%d,%d,%d,%d,%d,vin\n' % (x1, y1, x2, y2, x3, y3, x4, y4))
+             '''
             draw_bboxes(image_data, bboxes_det, util.img.COLOR_RGB_RED)
-#             print util.sit(pixel_score)
-#             print util.sit(mask)
-            print util.sit(image_data)
-                
-        
+            # print util.sit(pixel_score)
+            # print util.sit(mask)
+
 def main(_):
     dataset = config_initialization()
     test()

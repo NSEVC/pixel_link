@@ -31,7 +31,7 @@ class PixelLinkNet(object):
                                     padding='SAME') as sc:
                     self.arg_scope = sc
                     self.net, self.end_points = vgg.basenet(
-                              inputs =  self.inputs)
+                              inputs =  self.inputs, fatness=16)
                     
         elif config.model_type == MODEL_TYPE_vgg16_no_dilation:
             from nets import vgg

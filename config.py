@@ -17,14 +17,14 @@ b_mean = 104.
 rgb_mean = [r_mean, g_mean, b_mean]
 
 # scale, crop, filtering and resize parameters
-use_rotation = True
+use_rotation = False
 rotation_prob = 0.5
 max_expand_scale = 1
 expand_prob = 0
-min_object_covered = 0.1          # Minimum object to be cropped in random crop.
-bbox_crop_overlap = 0.2         # Minimum overlap to keep a bbox after cropping.
-crop_aspect_ratio_range = (0.5, 2.)  # Distortion ratio during cropping.
-area_range = [0.1, 1]
+min_object_covered = 1.0          # Minimum object to be cropped in random crop.
+bbox_crop_overlap = 0.05         # Minimum overlap to keep a bbox after cropping.
+crop_aspect_ratio_range = (2., 3.)  # Distortion ratio during cropping.
+area_range = [0.7, 1]
 flip = False
 using_shorter_side_filtering=True
 min_shorter_side = 10

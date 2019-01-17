@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,8 +131,8 @@ def convert_to_example(image_data, filename, labels, labels_text, bboxes, orient
             'image/object/bbox/y3': float_feature(get_list(oriented_bboxes, 5)),
             'image/object/bbox/x4': float_feature(get_list(oriented_bboxes, 6)),
             'image/object/bbox/y4': float_feature(get_list(oriented_bboxes, 7)),
-            'image/object/bbox/label': int64_feature(labels),
-            'image/object/bbox/label_text': bytes_feature(labels_text),
+            'image/object/bbox/label': int64_feature(labels),  # 标签的索引形式
+            'image/object/bbox/label_text': bytes_feature(labels_text),  # 标签的文字形式
             'image/format': bytes_feature(image_format),
             'image/filename': bytes_feature(filename),
             'image/encoded': bytes_feature(image_data)}))
@@ -145,8 +146,11 @@ def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
     else:
         file_pattern = util.io.join_path(dataset_dir, file_pattern)
     # Allowing None in the signature so that dataset_factory can use the default.
+    # 创建Reader读取数据
     if reader is None:
         reader = tf.TFRecordReader
+
+    # 将example反序列化成存储之前的格式。由tf完成
     keys_to_features = {
         'image/encoded': tf.FixedLenFeature((), tf.string, default_value=''),
         'image/format': tf.FixedLenFeature((), tf.string, default_value='jpeg'),
@@ -166,6 +170,7 @@ def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
         'image/object/bbox/y4': tf.VarLenFeature(dtype=tf.float32),
         'image/object/bbox/label': tf.VarLenFeature(dtype=tf.int64),
     }
+    # 将反序列化的数据组装成更高级的格式。由slim完成
     items_to_handlers = {
         'image': slim.tfexample_decoder.Image('image/encoded', 'image/format'),
         'shape': slim.tfexample_decoder.Tensor('image/shape'),
@@ -182,6 +187,7 @@ def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
         'object/oriented_bbox/y4': slim.tfexample_decoder.Tensor('image/object/bbox/y4'),
         'object/label': slim.tfexample_decoder.Tensor('image/object/bbox/label')
     }
+    # 解码器，进行解码
     decoder = slim.tfexample_decoder.TFExampleDecoder(keys_to_features, items_to_handlers)
 
     labels_to_names = {0:'background', 1:'text'}
@@ -192,11 +198,13 @@ def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
         'object/label': 'A list of labels, one per each object.',
     }
 
+    # dataset对象定义了数据集的文件位置，解码方式等元信息
     return slim.dataset.Dataset(
             data_sources=file_pattern,
             reader=reader,
             decoder=decoder,
-            num_samples=num_samples,
+            num_samples=num_samples,  # 训练数据的总数
             items_to_descriptions=items_to_descriptions,
             num_classes=2,
-            labels_to_names=labels_to_names)
+            labels_to_names=labels_to_names  # 字典形式，格式为：id:class_call
+    )

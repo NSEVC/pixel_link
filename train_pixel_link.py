@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 #test code to make sure the ground truth calculation and data batch works well.
 
 import numpy as np
-import tensorflow as tf # test
+import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
 
 from datasets import dataset_factory
@@ -12,6 +13,8 @@ import pixel_link
 
 slim = tf.contrib.slim
 import config
+
+
 # =========================================================================== #
 # Checkpoint and running Flags
 # =========================================================================== #
@@ -64,16 +67,19 @@ tf.app.flags.DEFINE_integer('train_image_height', 512, 'Train image size')
 
 
 FLAGS = tf.app.flags.FLAGS
+
 def config_initialization():
     # image shape and feature layers shape inference
-    image_shape = (FLAGS.train_image_height, FLAGS.train_image_width)
+    image_shape = (FLAGS.train_image_height, FLAGS.train_image_width)  # 416 * 416
     
     if not FLAGS.dataset_dir:
         raise ValueError('You must supply the dataset directory with --dataset_dir')
-    
+
+    # TensorFlow使用五个不同级别的日志消息。 按照上升的顺序，它们是DEBUG，INFO，WARN，ERROR和FATAL,
+    # 如果设置了一个DEBUG级别，则会从所有五个级别获取日志消息
     tf.logging.set_verbosity(tf.logging.DEBUG)
-    util.init_logger(
-        log_file = 'log_train_pixel_link_%d_%d.log'%image_shape, 
+
+    util.init_logger(log_file = 'log_train_pixel_link_%d_%d.log'%image_shape,
                     log_path = FLAGS.train_dir, stdout = False, mode = 'a')
     
     
@@ -83,7 +89,7 @@ def config_initialization():
                        batch_size = FLAGS.batch_size, 
                        weight_decay = FLAGS.weight_decay, 
                        num_gpus = FLAGS.num_gpus
-                   )
+                       )
 
     batch_size = config.batch_size
     batch_size_per_gpu = config.batch_size_per_gpu
@@ -91,7 +97,7 @@ def config_initialization():
     tf.summary.scalar('batch_size', batch_size)
     tf.summary.scalar('batch_size_per_gpu', batch_size_per_gpu)
 
-    util.proc.set_proc_name('train_pixel_link_on'+ '_' + FLAGS.dataset_name)
+    util.proc.set_proc_name('train_pixel_link_on' + '_' + FLAGS.dataset_name)
     
     dataset = dataset_factory.get_dataset(FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
     config.print_config(FLAGS, dataset)
@@ -102,13 +108,15 @@ def create_dataset_batch_queue(dataset):
 
     with tf.device('/cpu:0'):
         with tf.name_scope(FLAGS.dataset_name + '_data_provider'):
+            # provider对象根据dataset信息读取数据
             provider = slim.dataset_data_provider.DatasetDataProvider(
-                dataset,
+                dataset,  # slim.dataset.Dataset 做参数
                 num_readers=FLAGS.num_readers,
                 common_queue_capacity=1000 * config.batch_size,
                 common_queue_min=700 * config.batch_size,
                 shuffle=True)
         # Get for SSD network: image, labels, bboxes.
+        # 获取数据，获取到的数据是单个数据，还需要对数据进行预处理，组合数据
         [image, glabel, gbboxes, x1, x2, x3, x4, y1, y2, y3, y4] = provider.get([
                                                          'image',
                                                          'object/label',
@@ -125,7 +133,8 @@ def create_dataset_batch_queue(dataset):
         gxs = tf.transpose(tf.stack([x1, x2, x3, x4])) #shape = (N, 4)
         gys = tf.transpose(tf.stack([y1, y2, y3, y4]))
         image = tf.identity(image, 'input_image')
-        
+
+        # 图像预处理，同时处理标签
         # Pre-processing image, labels and bboxes.
         image, glabel, gbboxes, gxs, gys = \
                 ssd_vgg_preprocessing.preprocess_image(
@@ -282,7 +291,7 @@ def train(train_op):
 def main(_):
     # The choice of return dataset object via initialization method maybe confusing, 
     # but I need to print all configurations in this method, including dataset information. 
-    dataset = config_initialization()   
+    dataset = config_initialization()
     
     batch_queue = create_dataset_batch_queue(dataset)
     train_op = create_clones(batch_queue)
@@ -290,4 +299,4 @@ def main(_):
     
     
 if __name__ == '__main__':
-    tf.app.run()
+    tf.app.run()  # 处理flag解析，然后执行main函数
