@@ -1,3 +1,4 @@
+from __future__ import division
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -167,8 +168,8 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     print('=== poly === ')
     print(poly_batch)
 
-    for i in range(len(poly_batch)):
-        poly = poly_batch[i]
+    for j in range(len(poly_batch)):
+        poly = poly_batch[j]
         r = [None, None, None, None]
         for i in range(4):
             r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
@@ -182,8 +183,8 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         xs = poly[:, 0]
         ys = poly[:, 1]
 
-        normed_xs[i] = xs
-        normed_xs[i] = ys
+        normed_xs[j] = xs
+        normed_xs[j] = ys
 
     print('=== xs processed === ')
     print(xs)
