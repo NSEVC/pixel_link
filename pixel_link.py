@@ -52,7 +52,7 @@ def is_valid_cord(x, y, w, h):
     return x >=0 and x < w and y >= 0 and y < h;
 
 #=====================Ground Truth Calculation Begin==================
-def shrink_poly(poly, r):
+def shrink_poly(poly, r, shrink_ratio=0.3):
     '''
     fit a poly inside the origin poly, maybe bugs here...
     used for generate the score map
@@ -60,17 +60,13 @@ def shrink_poly(poly, r):
     :param r: r in the paper
     :return: the shrinked poly
     '''
-    # shrink ratio
-    R = 0.3
+    R = shrink_ratio
     # find the longer pair
     if np.linalg.norm(poly[0] - poly[1]) + np.linalg.norm(poly[2] - poly[3]) > \
                     np.linalg.norm(poly[0] - poly[3]) + np.linalg.norm(poly[1] - poly[2]):
         # first move (p0, p1), (p2, p3), then (p0, p3), (p1, p2)
         ## p0, p1
         theta = np.arctan2((poly[1][1] - poly[0][1]), (poly[1][0] - poly[0][0]))
-        print('=== theta 1 === ')
-        print(theta)
-
         poly[0][0] += R * r[0] * np.cos(theta)
         poly[0][1] += R * r[0] * np.sin(theta)
         poly[1][0] -= R * r[1] * np.cos(theta)
@@ -94,15 +90,10 @@ def shrink_poly(poly, r):
         poly[2][0] -= R * r[2] * np.sin(theta)
         poly[2][1] -= R * r[2] * np.cos(theta)
 
-        print('=== shrink poly 1 === ')
-        print(poly)
     else:
         ## p0, p3
         # print poly
         theta = np.arctan2((poly[3][0] - poly[0][0]), (poly[3][1] - poly[0][1]))
-        print('=== theta 2 === ')
-        print(theta)
-
         poly[0][0] += R * r[0] * np.sin(theta)
         poly[0][1] += R * r[0] * np.cos(theta)
         poly[3][0] -= R * r[3] * np.sin(theta)
@@ -126,8 +117,8 @@ def shrink_poly(poly, r):
         poly[2][0] -= R * r[2] * np.cos(theta)
         poly[2][1] -= R * r[2] * np.sin(theta)
 
-        print('=== shrink poly 2 === ')
-        print(poly)
+        # print('=== shrink poly 2 === ')
+        # print(poly)
 
     return poly
 
@@ -167,10 +158,10 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         pixel_link_label
         pixel_link_weight
     """
-    print('=== xs === ')
-    print(normed_xs)
-    print('=== ys === ')
-    print(normed_ys)
+    # print('=== xs === ')
+    # print(normed_xs)
+    # print('=== ys === ')
+    # print(normed_ys)
 
     poly_batch = []
     for i in range(len(normed_xs)):
@@ -178,8 +169,8 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         poly_batch.append(c)
     poly_batch = np.array(poly_batch)
 
-    print('=== poly === ')
-    print(poly_batch)
+    # print('=== poly === ')
+    # print(poly_batch)
 
     for j in range(len(poly_batch)):
         poly = poly_batch[j]
@@ -187,13 +178,13 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         for i in range(4):
             r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
                        np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
-        print('=== r === ')
-        print(r)
-        # score map
-        shrinked_poly = shrink_poly(poly.copy(), r)
+        # print('=== r === ')
+        # print(r)
+        # # score map
+        shrinked_poly = shrink_poly(poly.copy(), r, shrink_ratio=0.2)
 
-        print('=== shrinked_poly out=== ')
-        print(shrinked_poly)
+        # print('=== shrinked_poly out=== ')
+        # print(shrinked_poly)
 
         xs = shrinked_poly[:, 0]
         ys = shrinked_poly[:, 1]
@@ -201,10 +192,10 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         normed_xs[j] = xs
         normed_xs[j] = ys
 
-    print('=== xs processed === ')
-    print(xs)
-    print('=== ys processed === ')
-    print(ys)
+    # print('=== xs processed === ')
+    # print(xs)
+    # print('=== ys processed === ')
+    # print(ys)
 
 
     # 1. set config
