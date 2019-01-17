@@ -162,6 +162,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     for i in range(len(normed_xs)):
         c = zip(normed_xs[i], normed_ys[i])
         poly_batch.append(c)
+    poly_batch = np.array(poly_batch)
 
     print('=== poly === ')
     print(poly_batch)
