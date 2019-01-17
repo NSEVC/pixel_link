@@ -158,7 +158,10 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     print('=== ys === ')
     print(normed_xs)
 
-    poly = zip(normed_xs, normed_xs)
+    poly = []
+    for i in range(len(normed_xs)):
+        c = zip(normed_xs[i], normed_ys[i])
+        poly.append(c)
 
     print('=== poly === ')
     print(poly)
@@ -173,7 +176,8 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     print('=== shrinked_poly === ')
     print(shrinked_poly)
 
-    xs, ys = zip(*shrinked_poly)
+    xs = poly[:, :, 0]
+    ys = poly[:, :, 1]
 
     print('=== xs processed === ')
     print(xs)
