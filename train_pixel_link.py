@@ -50,7 +50,7 @@ tf.app.flags.DEFINE_integer(
     'num_readers', 1,
     'The number of parallel readers that read data from the dataset.')
 tf.app.flags.DEFINE_integer(
-    'num_preprocessing_threads', 24,
+    'num_preprocessing_threads', 1,
     'The number of threads used to create the batches.')
 
 # =========================================================================== #

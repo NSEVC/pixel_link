@@ -51,7 +51,101 @@ def is_valid_cord(x, y, w, h):
     return x >=0 and x < w and y >= 0 and y < h;
 
 #=====================Ground Truth Calculation Begin==================
+def shrink_poly(poly, r):
+    '''
+    fit a poly inside the origin poly, maybe bugs here...
+    used for generate the score map
+    :param poly: the text poly
+    :param r: r in the paper
+    :return: the shrinked poly
+    '''
+    # shrink ratio
+    R = 0.3
+    # find the longer pair
+    if np.linalg.norm(poly[0] - poly[1]) + np.linalg.norm(poly[2] - poly[3]) > \
+                    np.linalg.norm(poly[0] - poly[3]) + np.linalg.norm(poly[1] - poly[2]):
+        # first move (p0, p1), (p2, p3), then (p0, p3), (p1, p2)
+        ## p0, p1
+        theta = np.arctan2((poly[1][1] - poly[0][1]), (poly[1][0] - poly[0][0]))
+        poly[0][0] += R * r[0] * np.cos(theta)
+        poly[0][1] += R * r[0] * np.sin(theta)
+        poly[1][0] -= R * r[1] * np.cos(theta)
+        poly[1][1] -= R * r[1] * np.sin(theta)
+        ## p2, p3
+        theta = np.arctan2((poly[2][1] - poly[3][1]), (poly[2][0] - poly[3][0]))
+        poly[3][0] += R * r[3] * np.cos(theta)
+        poly[3][1] += R * r[3] * np.sin(theta)
+        poly[2][0] -= R * r[2] * np.cos(theta)
+        poly[2][1] -= R * r[2] * np.sin(theta)
+        ## p0, p3
+        theta = np.arctan2((poly[3][0] - poly[0][0]), (poly[3][1] - poly[0][1]))
+        poly[0][0] += R * r[0] * np.sin(theta)
+        poly[0][1] += R * r[0] * np.cos(theta)
+        poly[3][0] -= R * r[3] * np.sin(theta)
+        poly[3][1] -= R * r[3] * np.cos(theta)
+        ## p1, p2
+        theta = np.arctan2((poly[2][0] - poly[1][0]), (poly[2][1] - poly[1][1]))
+        poly[1][0] += R * r[1] * np.sin(theta)
+        poly[1][1] += R * r[1] * np.cos(theta)
+        poly[2][0] -= R * r[2] * np.sin(theta)
+        poly[2][1] -= R * r[2] * np.cos(theta)
+    else:
+        ## p0, p3
+        # print poly
+        theta = np.arctan2((poly[3][0] - poly[0][0]), (poly[3][1] - poly[0][1]))
+        poly[0][0] += R * r[0] * np.sin(theta)
+        poly[0][1] += R * r[0] * np.cos(theta)
+        poly[3][0] -= R * r[3] * np.sin(theta)
+        poly[3][1] -= R * r[3] * np.cos(theta)
+        ## p1, p2
+        theta = np.arctan2((poly[2][0] - poly[1][0]), (poly[2][1] - poly[1][1]))
+        poly[1][0] += R * r[1] * np.sin(theta)
+        poly[1][1] += R * r[1] * np.cos(theta)
+        poly[2][0] -= R * r[2] * np.sin(theta)
+        poly[2][1] -= R * r[2] * np.cos(theta)
+        ## p0, p1
+        theta = np.arctan2((poly[1][1] - poly[0][1]), (poly[1][0] - poly[0][0]))
+        poly[0][0] += R * r[0] * np.cos(theta)
+        poly[0][1] += R * r[0] * np.sin(theta)
+        poly[1][0] -= R * r[1] * np.cos(theta)
+        poly[1][1] -= R * r[1] * np.sin(theta)
+        ## p2, p3
+        theta = np.arctan2((poly[2][1] - poly[3][1]), (poly[2][0] - poly[3][0]))
+        poly[3][0] += R * r[3] * np.cos(theta)
+        poly[3][1] += R * r[3] * np.sin(theta)
+        poly[2][0] -= R * r[2] * np.cos(theta)
+        poly[2][1] -= R * r[2] * np.sin(theta)
+    return poly
+
+
 def tf_cal_gt_for_single_image(xs, ys, labels):
+    print('=== xs === ')
+    print(xs)
+    print('=== ys === ')
+    print(ys)
+
+    poly = zip(xs, ys)
+
+    print('=== poly === ')
+    print(poly)
+
+    r = [None, None, None, None]
+    for i in range(4):
+        r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
+                   np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
+    # score map
+    shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
+
+    print('=== shrinked_poly === ')
+    print(shrinked_poly)
+
+    xs, ys = zip(*shrinked_poly)
+
+    print('=== xs processed === ')
+    print(xs)
+    print('=== ys processed === ')
+    print(ys)
+
     pixel_cls_label, pixel_cls_weight,  \
     pixel_link_label, pixel_link_weight = \
         tf.py_func(
@@ -110,17 +204,6 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     # rescale normalized xys to absolute values
     xs = normed_xs * w
     ys = normed_ys * h
-
-    print('=== normed_xs === ')
-    print(normed_xs)
-    print('=== normed_ys === ')
-    print(normed_ys)
-
-    print('=== xs === ')
-    print(xs)
-    print('=== ys === ')
-    print(ys)
-
 
     # initialize ground truth values
     mask = np.zeros(score_map_shape, dtype=np.int32)
