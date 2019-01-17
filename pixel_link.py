@@ -158,26 +158,31 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     print('=== ys === ')
     print(normed_xs)
 
-    poly = []
+    poly_batch = []
     for i in range(len(normed_xs)):
         c = zip(normed_xs[i], normed_ys[i])
-        poly.append(c)
+        poly_batch.append(c)
 
     print('=== poly === ')
-    print(poly)
+    print(poly_batch)
 
-    r = [None, None, None, None]
-    for i in range(4):
-        r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
-                   np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
-    # score map
-    shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
+    for i in range(len(poly_batch)):
+        poly = poly_batch[i]
+        r = [None, None, None, None]
+        for i in range(4):
+            r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
+                       np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
+        # score map
+        shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
 
-    print('=== shrinked_poly === ')
-    print(shrinked_poly)
+        print('=== shrinked_poly === ')
+        print(shrinked_poly)
 
-    xs = poly[:, :, 0]
-    ys = poly[:, :, 1]
+        xs = poly[:, 0]
+        ys = poly[:, 1]
+
+        normed_xs[i] = xs
+        normed_xs[i] = ys
 
     print('=== xs processed === ')
     print(xs)
