@@ -68,7 +68,7 @@ def shrink_poly(poly, r):
         # first move (p0, p1), (p2, p3), then (p0, p3), (p1, p2)
         ## p0, p1
         theta = np.arctan2((poly[1][1] - poly[0][1]), (poly[1][0] - poly[0][0]))
-        print('=== theta === ')
+        print('=== theta 1 === ')
         print(theta)
 
         poly[0][0] += R * r[0] * np.cos(theta)
@@ -94,13 +94,13 @@ def shrink_poly(poly, r):
         poly[2][0] -= R * r[2] * np.sin(theta)
         poly[2][1] -= R * r[2] * np.cos(theta)
 
-        print('=== shrink poly === ')
+        print('=== shrink poly 1 === ')
         print(poly)
     else:
         ## p0, p3
         # print poly
         theta = np.arctan2((poly[3][0] - poly[0][0]), (poly[3][1] - poly[0][1]))
-        print('=== theta === ')
+        print('=== theta 2 === ')
         print(theta)
 
         poly[0][0] += R * r[0] * np.sin(theta)
@@ -126,7 +126,7 @@ def shrink_poly(poly, r):
         poly[2][0] -= R * r[2] * np.cos(theta)
         poly[2][1] -= R * r[2] * np.sin(theta)
 
-        print('=== shrink poly === ')
+        print('=== shrink poly 2 === ')
         print(poly)
 
     return poly
@@ -190,7 +190,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         print('=== r === ')
         print(r)
         # score map
-        shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
+        shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)
 
         print('=== shrinked_poly out=== ')
         print(shrinked_poly)
