@@ -119,33 +119,6 @@ def shrink_poly(poly, r):
 
 
 def tf_cal_gt_for_single_image(xs, ys, labels):
-    print('=== xs === ')
-    print(xs)
-    print('=== ys === ')
-    print(ys)
-
-    poly = zip(xs, ys)
-
-    print('=== poly === ')
-    print(poly)
-
-    r = [None, None, None, None]
-    for i in range(4):
-        r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
-                   np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
-    # score map
-    shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
-
-    print('=== shrinked_poly === ')
-    print(shrinked_poly)
-
-    xs, ys = zip(*shrinked_poly)
-
-    print('=== xs processed === ')
-    print(xs)
-    print('=== ys processed === ')
-    print(ys)
-
     pixel_cls_label, pixel_cls_weight,  \
     pixel_link_label, pixel_link_weight = \
         tf.py_func(
@@ -180,6 +153,34 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         pixel_link_label
         pixel_link_weight
     """
+    print('=== xs === ')
+    print(normed_xs)
+    print('=== ys === ')
+    print(normed_xs)
+
+    poly = zip(normed_xs, normed_xs)
+
+    print('=== poly === ')
+    print(poly)
+
+    r = [None, None, None, None]
+    for i in range(4):
+        r[i] = min(np.linalg.norm(poly[i] - poly[(i + 1) % 4]),
+                   np.linalg.norm(poly[i] - poly[(i - 1) % 4]))
+    # score map
+    shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
+
+    print('=== shrinked_poly === ')
+    print(shrinked_poly)
+
+    xs, ys = zip(*shrinked_poly)
+
+    print('=== xs processed === ')
+    print(xs)
+    print('=== ys processed === ')
+    print(ys)
+
+
     # 1. set config
     import config
     score_map_shape = config.score_map_shape
