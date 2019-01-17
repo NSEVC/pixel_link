@@ -86,6 +86,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         pixel_link_label
         pixel_link_weight
     """
+    # 1. set config
     import config
     score_map_shape = config.score_map_shape
     pixel_cls_weight_method = config.pixel_cls_weight_method  # a string
@@ -109,14 +110,25 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     # rescale normalized xys to absolute values
     xs = normed_xs * w
     ys = normed_ys * h
-    
+
+    print('=== normed_xs === ')
+    print(normed_xs)
+    print('=== normed_ys === ')
+    print(normed_ys)
+
+    print('=== xs === ')
+    print(xs)
+    print('=== ys === ')
+    print(ys)
+
+
     # initialize ground truth values
-    mask = np.zeros(score_map_shape, dtype = np.int32)
-    pixel_cls_label = np.ones(score_map_shape, dtype = np.int32) * background_label
-    pixel_cls_weight = np.zeros(score_map_shape, dtype = np.float32)
+    mask = np.zeros(score_map_shape, dtype=np.int32)
+    pixel_cls_label = np.ones(score_map_shape, dtype=np.int32) * background_label
+    pixel_cls_weight = np.zeros(score_map_shape, dtype=np.float32)
     
-    pixel_link_label = np.zeros((h, w, num_neighbours), dtype = np.int32)
-    pixel_link_weight = np.ones((h, w, num_neighbours), dtype = np.float32)
+    pixel_link_label = np.zeros((h, w, num_neighbours), dtype=np.int32)
+    pixel_link_weight = np.ones((h, w, num_neighbours), dtype=np.float32)
     
     # find overlapped pixels, and consider them as ignored in pixel_cls_weight
     # and pixels in ignored bboxes are ignored as well
@@ -133,8 +145,8 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         
         bbox_points = zip(bbox_xs, bbox_ys)
         bbox_contours = util.img.points_to_contours(bbox_points)
-        util.img.draw_contours(bbox_mask, bbox_contours, idx = -1, 
-                               color = 1, border_width = -1)
+        util.img.draw_contours(bbox_mask, bbox_contours, idx=-1,
+                               color=1, border_width=-1)
         
         bbox_masks.append(bbox_mask)
         

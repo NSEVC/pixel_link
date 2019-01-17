@@ -333,11 +333,11 @@ def preprocess_for_train(image, labels, bboxes, xs, ys,
             raise ValueError('Input must be of size [height, width, C>0]')
         
         # rotate image by 0, 0.5 * pi, pi, 1.5 * pi randomly
-#         if USE_ROTATION:
-#             image, bboxes, xs, ys = tf_image.random_rotate90(image, bboxes, xs, ys)
-            # rotate image by 0, 0.5 * pi, pi, 1.5 * pi randomly
+        # if USE_ROTATION:
+        #     image, bboxes, xs, ys = tf_image.random_rotate90(image, bboxes, xs, ys)
+        #     rotate image by 0, 0.5 * pi, pi, 1.5 * pi randomly
         if USE_ROTATION:
-            rnd = tf.random_uniform((), minval = 0, maxval = 1)
+            rnd = tf.random_uniform((), minval=0, maxval=1)
             def rotate():
                 return tf_image.random_rotate90(image, bboxes, xs, ys)
  
@@ -348,14 +348,14 @@ def preprocess_for_train(image, labels, bboxes, xs, ys,
     
         # expand image
         if MAX_EXPAND_SCALE > 1:
-            rnd2 = tf.random_uniform((), minval = 0, maxval = 1)
+            rnd2 = tf.random_uniform((), minval=0, maxval=1)
             def expand():
-                scale = tf.random_uniform([], minval = 1.0, 
-                              maxval = MAX_EXPAND_SCALE, dtype=tf.float32)
-                image_shape = tf.cast(tf.shape(image), dtype = tf.float32)
+                scale = tf.random_uniform([], minval=1.0,
+                              maxval=MAX_EXPAND_SCALE, dtype=tf.float32)
+                image_shape = tf.cast(tf.shape(image), dtype=tf.float32)
                 image_h, image_w = image_shape[0], image_shape[1]
-                target_h = tf.cast(image_h * scale, dtype = tf.int32)
-                target_w = tf.cast(image_w * scale, dtype = tf.int32)
+                target_h = tf.cast(image_h * scale, dtype=tf.int32)
+                target_w = tf.cast(image_w * scale, dtype=tf.int32)
                 tf.logging.info('expanded')
                 return tf_image.resize_image_bboxes_with_crop_or_pad(
                              image, bboxes, xs, ys, target_h, target_w)

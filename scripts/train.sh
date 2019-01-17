@@ -27,7 +27,7 @@ python train_pixel_link.py \
             --learning_rate=1e-4 \
             --gpu_memory_fraction=-1 \
             --train_image_width=640 \
-            --train_image_height=156 \
+            --train_image_height=256 \
             --batch_size=${BATCH_SIZE}\
             --dataset_dir=${DATASET_DIR} \
             --dataset_name=${DATASET} \

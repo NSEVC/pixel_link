@@ -139,10 +139,10 @@ def create_dataset_batch_queue(dataset):
         image, glabel, gbboxes, gxs, gys = \
                 ssd_vgg_preprocessing.preprocess_image(
                        image, glabel, gbboxes, gxs, gys, 
-                       out_shape = config.train_image_shape,
-                       data_format = config.data_format, 
-                       use_rotation = config.use_rotation,
-                       is_training = True)
+                       out_shape=config.train_image_shape,
+                       data_format=config.data_format,
+                       use_rotation=config.use_rotation,
+                       is_training=True)
         image = tf.identity(image, 'processed_image')
         
         # calculate ground truth
@@ -157,14 +157,14 @@ def create_dataset_batch_queue(dataset):
                 tf.train.batch(
                     [image, pixel_cls_label, pixel_cls_weight, 
                         pixel_link_label, pixel_link_weight],
-                    batch_size = config.batch_size_per_gpu,
-                    num_threads= FLAGS.num_preprocessing_threads,
-                    capacity = 500)
+                    batch_size=config.batch_size_per_gpu,
+                    num_threads=FLAGS.num_preprocessing_threads,
+                    capacity=500)
         with tf.name_scope(FLAGS.dataset_name + '_prefetch_queue'):
             batch_queue = slim.prefetch_queue.prefetch_queue(
                 [b_image, b_pixel_cls_label, b_pixel_cls_weight, 
                     b_pixel_link_label, b_pixel_link_weight],
-                capacity = 50) 
+                capacity=50)
     return batch_queue    
 
 def sum_gradients(clone_grads):                        
@@ -176,7 +176,7 @@ def sum_gradients(clone_grads):
             for g, v in grad_and_vars:
                 assert v == var
                 grads.append(g)
-            grad = tf.add_n(grads, name = v.op.name + '_summed_gradients')
+            grad = tf.add_n(grads, name=v.op.name + '_summed_gradients')
         except:
             import pdb
             pdb.set_trace()
@@ -200,10 +200,10 @@ def create_clones(batch_queue):
 
         tf.summary.scalar('learning_rate', learning_rate)
     # place clones
-    pixel_link_loss = 0; # for summary only
+    pixel_link_loss = 0  # for summary only
     gradients = []
     for clone_idx, gpu in enumerate(config.gpus):
-        do_summary = clone_idx == 0 # only summary on the first clone
+        do_summary = clone_idx == 0  # only summary on the first clone
         reuse = clone_idx > 0
         with tf.variable_scope(tf.get_variable_scope(), reuse = reuse):
             with tf.name_scope(config.clone_scopes[clone_idx]) as clone_scope:
@@ -213,11 +213,11 @@ def create_clones(batch_queue):
                     # build model and loss
                     net = pixel_link_symbol.PixelLinkNet(b_image, is_training = True)
                     net.build_loss(
-                        pixel_cls_labels = b_pixel_cls_label, 
-                        pixel_cls_weights = b_pixel_cls_weight, 
-                        pixel_link_labels = b_pixel_link_label, 
-                        pixel_link_weights = b_pixel_link_weight,
-                        do_summary = do_summary)
+                        pixel_cls_labels=b_pixel_cls_label,
+                        pixel_cls_weights=b_pixel_cls_weight,
+                        pixel_link_labels=b_pixel_link_label,
+                        pixel_link_weights=b_pixel_link_weight,
+                        do_summary=do_summary)
                     
                     # gather losses
                     losses = tf.get_collection(tf.GraphKeys.LOSSES, clone_scope)
@@ -265,26 +265,26 @@ def create_clones(batch_queue):
     
 def train(train_op):
     summary_op = tf.summary.merge_all()
-    sess_config = tf.ConfigProto(log_device_placement = False, allow_soft_placement = True)
+    sess_config = tf.ConfigProto(log_device_placement=False, allow_soft_placement=True)
     if FLAGS.gpu_memory_fraction < 0:
         sess_config.gpu_options.allow_growth = True
     elif FLAGS.gpu_memory_fraction > 0:
         sess_config.gpu_options.per_process_gpu_memory_fraction = FLAGS.gpu_memory_fraction;
     
-    init_fn = util.tf.get_init_fn(checkpoint_path = FLAGS.checkpoint_path, train_dir = FLAGS.train_dir, 
-                          ignore_missing_vars = FLAGS.ignore_missing_vars, checkpoint_exclude_scopes = FLAGS.checkpoint_exclude_scopes)
-    saver = tf.train.Saver(max_to_keep = 500, write_version = 2)
+    init_fn = util.tf.get_init_fn(checkpoint_path=FLAGS.checkpoint_path, train_dir=FLAGS.train_dir,
+                          ignore_missing_vars=FLAGS.ignore_missing_vars, checkpoint_exclude_scopes=FLAGS.checkpoint_exclude_scopes)
+    saver = tf.train.Saver(max_to_keep=500, write_version=2)
     slim.learning.train(
             train_op,
-            logdir = FLAGS.train_dir,
-            init_fn = init_fn,
-            summary_op = summary_op,
-            number_of_steps = FLAGS.max_number_of_steps,
-            log_every_n_steps = FLAGS.log_every_n_steps,
-            save_summaries_secs = 30,
-            saver = saver,
-            save_interval_secs = 1200,
-            session_config = sess_config
+            logdir=FLAGS.train_dir,
+            init_fn=init_fn,
+            summary_op=summary_op,
+            number_of_steps=FLAGS.max_number_of_steps,
+            log_every_n_steps=FLAGS.log_every_n_steps,
+            save_summaries_secs=30,
+            saver=saver,
+            save_interval_secs=1200,
+            session_config=sess_config
     )
 
 
