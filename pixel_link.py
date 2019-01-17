@@ -190,7 +190,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         print('=== r === ')
         print(r)
         # score map
-        shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)
+        shrinked_poly = shrink_poly(poly.copy(), r)
 
         print('=== shrinked_poly out=== ')
         print(shrinked_poly)
