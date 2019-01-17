@@ -192,11 +192,11 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         # score map
         shrinked_poly = shrink_poly(poly.copy(), r).astype(np.int32)[np.newaxis, :, :]
 
-        print('=== shrinked_poly === ')
+        print('=== shrinked_poly out=== ')
         print(shrinked_poly)
 
-        xs = poly[:, 0]
-        ys = poly[:, 1]
+        xs = shrinked_poly[:, 0]
+        ys = shrinked_poly[:, 1]
 
         normed_xs[j] = xs
         normed_xs[j] = ys
